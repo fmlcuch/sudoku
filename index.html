@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sudoku generátor</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div>
+        <h1>Sudoku generátor</h1>
+        <p>Generuj, hraj, tipuj, ukládej. Přímo v prohlížeči.</p>
+      </div>
+      <div class="controls">
+        <label>
+          Obtížnost
+          <select id="difficulty">
+            <option value="easy">Lehká</option>
+            <option value="medium" selected>Střední</option>
+            <option value="hard">Těžká</option>
+          </select>
+        </label>
+        <button id="newGameBtn">Nová hra</button>
+        <button id="showSolutionBtn" class="secondary">Ukázat řešení</button>
+      </div>
+    </header>
+
+    <section class="meta">
+      <div id="status">Připraveno.</div>
+      <div id="stats"></div>
+    </section>
+
+    <section class="toolbar">
+      <button data-num="1">1</button>
+      <button data-num="2">2</button>
+      <button data-num="3">3</button>
+      <button data-num="4">4</button>
+      <button data-num="5">5</button>
+      <button data-num="6">6</button>
+      <button data-num="7">7</button>
+      <button data-num="8">8</button>
+      <button data-num="9">9</button>
+      <button id="eraseBtn" class="secondary">Smazat</button>
+      <button id="noteModeBtn" class="secondary">Poznámky: vypnuto</button>
+      <button id="hintBtn" class="secondary">Nápověda</button>
+      <button id="undoBtn" class="secondary">Zpět</button>
+      <button id="checkBtn" class="secondary">Zkontrolovat</button>
+      <button id="saveBtn" class="secondary">Uložit</button>
+    </section>
+
+    <section class="grid-wrap">
+      <div id="grid" class="grid" aria-label="Sudoku"></div>
+    </section>
+
+    <section class="footer-actions">
+      <button id="copyPuzzleBtn" class="secondary">Kopírovat zadání</button>
+      <button id="copySolutionBtn" class="secondary">Kopírovat řešení</button>
+      <button id="clearSaveBtn" class="secondary">Smazat uloženou hru</button>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
