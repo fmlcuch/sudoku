@@ -329,11 +329,17 @@ function renderCell(r, c) {
 function render() {
   gridEl.innerHTML = '';
   markErrorCells();
-  const rows = showingSolution ? solution : values;
 
-  for (let r = 0; r < 9; r++) {
-    for (let c = 0; c < 9; c++) {
-      gridEl.appendChild(renderCell(r, c));
+  for (let br = 0; br < 3; br++) {
+    for (let bc = 0; bc < 3; bc++) {
+      const box = document.createElement('div');
+      box.className = 'box';
+      for (let r = br * 3; r < br * 3 + 3; r++) {
+        for (let c = bc * 3; c < bc * 3 + 3; c++) {
+          box.appendChild(renderCell(r, c));
+        }
+      }
+      gridEl.appendChild(box);
     }
   }
 
