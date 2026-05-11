@@ -8,58 +8,94 @@
 </head>
 <body>
   <main class="app">
-    <header class="header">
-      <div>
-        <h1>Sudoku generátor</h1>
-        <p>Generuj, hraj, tipuj, ukládej. Přímo v prohlížeči.</p>
+    <section id="startScreen" class="start-screen">
+      <div class="hero">
+        <p class="eyebrow">Sudoku generátor</p>
+        <h1>Vyber si sudoku a hraj hned.</h1>
+        <p class="lead">Lehké, střední nebo těžké. Hra se ukládá, dá se znovu otevřít a na mobilu běží v čistém dvoupanelovém rozvržení.</p>
       </div>
-      <div class="controls">
-        <label>
-          Obtížnost
-          <select id="difficulty">
-            <option value="easy">Lehká</option>
-            <option value="medium" selected>Střední</option>
-            <option value="hard">Těžká</option>
-          </select>
-        </label>
-        <button id="newGameBtn">Nová hra</button>
-        <button id="showSolutionBtn" class="secondary">Ukázat řešení</button>
+
+      <div class="start-card">
+        <h2>Začni novou hru</h2>
+        <div class="difficulty-picks">
+          <button class="start-difficulty" data-start-diff="easy">Lehká</button>
+          <button class="start-difficulty" data-start-diff="medium">Střední</button>
+          <button class="start-difficulty" data-start-diff="hard">Těžká</button>
+        </div>
       </div>
-    </header>
 
-    <section class="meta">
-      <div id="status">Připraveno.</div>
-      <div id="stats"></div>
+      <div class="start-card resume-card" id="resumeCard" hidden>
+        <h2>Rozehraná hra</h2>
+        <p>Pokračuj tam, kde jsi skončil.</p>
+        <button id="continueBtn" class="primary">Pokračovat</button>
+      </div>
     </section>
 
-    <section class="grid-wrap">
-      <div id="grid" class="grid" aria-label="Sudoku"></div>
-    </section>
+    <section id="gameScreen" class="game-screen" hidden>
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Sudoku generátor</p>
+          <h1>Hra</h1>
+        </div>
+        <div class="topbar-actions">
+          <button id="homeBtn" class="icon-btn" aria-label="Zpět na úvod">⌂</button>
+          <button id="menuBtn" class="icon-btn" aria-label="Otevřít nabídku">☰</button>
+        </div>
+      </header>
 
-    <section class="keypad">
-      <button data-num="1">1</button>
-      <button data-num="2">2</button>
-      <button data-num="3">3</button>
-      <button data-num="4">4</button>
-      <button data-num="5">5</button>
-      <button data-num="6">6</button>
-      <button data-num="7">7</button>
-      <button data-num="8">8</button>
-      <button data-num="9">9</button>
-      <button id="eraseBtn" class="secondary">Smazat</button>
-      <button id="noteModeBtn" class="secondary">Poznámky: vypnuto</button>
-      <button id="hintBtn" class="secondary">Nápověda</button>
-      <button id="undoBtn" class="secondary">Zpět</button>
-      <button id="checkBtn" class="secondary">Zkontrolovat</button>
-      <button id="saveBtn" class="secondary">Uložit</button>
-    </section>
+      <section class="meta">
+        <div id="status">Připraveno.</div>
+        <div id="stats"></div>
+      </section>
 
-    <section class="footer-actions">
-      <button id="copyPuzzleBtn" class="secondary">Kopírovat zadání</button>
-      <button id="copySolutionBtn" class="secondary">Kopírovat řešení</button>
-      <button id="clearSaveBtn" class="secondary">Smazat uloženou hru</button>
+      <section class="grid-wrap">
+        <div id="grid" class="grid" aria-label="Sudoku"></div>
+      </section>
+
+      <section class="keypad" aria-label="Výběr čísla">
+        <button data-num="1">1</button>
+        <button data-num="2">2</button>
+        <button data-num="3">3</button>
+        <button data-num="4">4</button>
+        <button data-num="5">5</button>
+        <button data-num="6">6</button>
+        <button data-num="7">7</button>
+        <button data-num="8">8</button>
+        <button data-num="9">9</button>
+      </section>
     </section>
   </main>
+
+  <aside id="menuPanel" class="menu-panel" hidden>
+    <div class="menu-surface">
+      <div class="menu-head">
+        <h2>Nastavení</h2>
+        <button id="menuCloseBtn" class="icon-btn" aria-label="Zavřít nabídku">✕</button>
+      </div>
+
+      <label class="field">
+        Obtížnost
+        <select id="difficulty">
+          <option value="easy">Lehká</option>
+          <option value="medium" selected>Střední</option>
+          <option value="hard">Těžká</option>
+        </select>
+      </label>
+
+      <div class="menu-actions">
+        <button id="newGameBtn">Nová hra</button>
+        <button id="showSolutionBtn" class="secondary">Ukázat řešení</button>
+        <button id="noteModeBtn" class="secondary">Poznámky: vypnuto</button>
+        <button id="hintBtn" class="secondary">Nápověda</button>
+        <button id="undoBtn" class="secondary">Zpět</button>
+        <button id="checkBtn" class="secondary">Zkontrolovat</button>
+        <button id="saveBtn" class="secondary">Uložit</button>
+        <button id="copyPuzzleBtn" class="secondary">Kopírovat zadání</button>
+        <button id="copySolutionBtn" class="secondary">Kopírovat řešení</button>
+        <button id="clearSaveBtn" class="secondary">Smazat uloženou hru</button>
+      </div>
+    </div>
+  </aside>
 
   <script src="script.js"></script>
 </body>

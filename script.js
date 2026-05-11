@@ -6,6 +6,14 @@ const difficultyMap = {
 
 const STORAGE_KEY = 'sudoku-app-state-v1';
 
+const startScreen = document.getElementById('startScreen');
+const gameScreen = document.getElementById('gameScreen');
+const resumeCard = document.getElementById('resumeCard');
+const continueBtn = document.getElementById('continueBtn');
+const homeBtn = document.getElementById('homeBtn');
+const menuBtn = document.getElementById('menuBtn');
+const menuPanel = document.getElementById('menuPanel');
+const menuCloseBtn = document.getElementById('menuCloseBtn');
 const gridEl = document.getElementById('grid');
 const statusEl = document.getElementById('status');
 const statsEl = document.getElementById('stats');
@@ -17,10 +25,10 @@ const hintBtn = document.getElementById('hintBtn');
 const undoBtn = document.getElementById('undoBtn');
 const checkBtn = document.getElementById('checkBtn');
 const saveBtn = document.getElementById('saveBtn');
-const eraseBtn = document.getElementById('eraseBtn');
 const copyPuzzleBtn = document.getElementById('copyPuzzleBtn');
 const copySolutionBtn = document.getElementById('copySolutionBtn');
 const clearSaveBtn = document.getElementById('clearSaveBtn');
+const startButtons = document.querySelectorAll('[data-start-diff]');
 
 let puzzle = [];
 let solution = [];
@@ -32,8 +40,9 @@ let noteMode = false;
 let showingSolution = false;
 let timer = 0;
 let timerHandle = null;
-let fromStorage = false;
 let errors = new Set();
+let loadedFromStorage = false;
+let currentDifficulty = 'medium';
 
 function createEmptyGrid(fill = 0) {
   return Array.from({ length: 9 }, () => Array(9).fill(fill));
@@ -59,6 +68,7 @@ function isValid(board, row, col, num) {
   for (let i = 0; i < 9; i++) {
     if (board[row][i] === num || board[i][col] === num) return false;
   }
+
   const startRow = Math.floor(row / 3) * 3;
   const startCol = Math.floor(col / 3) * 3;
   for (let r = startRow; r < startRow + 3; r++) {
@@ -66,6 +76,7 @@ function isValid(board, row, col, num) {
       if (board[r][c] === num) return false;
     }
   }
+
   return true;
 }
 
@@ -73,7 +84,7 @@ function fillBoard(board) {
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
       if (board[row][col] !== 0) continue;
-      const nums = shuffle([1,2,3,4,5,6,7,8,9]);
+      const nums = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9]);
       for (const num of nums) {
         if (isValid(board, row, col, num)) {
           board[row][col] = num;
@@ -93,7 +104,8 @@ function countSolutions(board, limit = 2) {
   function solve() {
     if (count >= limit) return;
 
-    let row = -1, col = -1;
+    let row = -1;
+    let col = -1;
     let minCandidates = 10;
 
     for (let r = 0; r < 9; r++) {
@@ -129,121 +141,42 @@ function countSolutions(board, limit = 2) {
   return count;
 }
 
-function generatePuzzle() {
-  const full = createEmptyGrid();
-  fillBoard(full);
-  solution = cloneGrid(full);
-
-  puzzle = cloneGrid(full);
-  const removals = difficultyMap[difficultyEl.value] ?? 50;
-  let removed = 0;
-  const cells = shuffle(Array.from({ length: 81 }, (_, i) => i));
-
-  for (const index of cells) {
-    if (removed >= removals) break;
-    const r = Math.floor(index / 9);
-    const c = index % 9;
-    const backup = puzzle[r][c];
-    puzzle[r][c] = 0;
-
-    const testBoard = cloneGrid(puzzle);
-    if (countSolutions(testBoard, 2) !== 1) {
-      puzzle[r][c] = backup;
-    } else {
-      removed++;
-    }
-  }
-
-  values = cloneGrid(puzzle);
-  notes = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set()));
-  history = [];
-  selected = null;
-  errors = new Set();
-  showingSolution = false;
-  timer = 0;
-  fromStorage = false;
-  startTimer();
-  render();
-  updateStats();
-  statusEl.textContent = 'Nové sudoku je připravené.';
-}
-
-function loadState(state) {
-  if (!state) return false;
-  try {
-    difficultyEl.value = state.difficulty || 'medium';
-    puzzle = state.puzzle;
-    solution = state.solution;
-    values = state.values;
-    notes = state.notes.map(row => row.map(cell => new Set(cell)));
-    history = state.history || [];
-    selected = state.selected;
-    noteMode = !!state.noteMode;
-    showingSolution = false;
-    timer = state.timer || 0;
-    fromStorage = true;
-    errors = new Set(state.errors || []);
-    startTimer();
-    render();
-    updateStats();
-    setNoteModeUI();
-    statusEl.textContent = 'Načtená rozehraná hra.';
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function saveState() {
-  const state = {
-    difficulty: difficultyEl.value,
-    puzzle,
-    solution,
-    values,
-    notes: notes.map(row => row.map(cell => [...cell])),
-    history,
-    selected,
-    noteMode,
-    timer,
-    errors: [...errors],
-  };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  statusEl.textContent = 'Hra uložena.';
-}
-
-function getSavedState() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
-
-function clearSavedState() {
-  localStorage.removeItem(STORAGE_KEY);
-  statusEl.textContent = 'Uložená hra smazána.';
-}
-
-function startTimer() {
-  clearInterval(timerHandle);
-  timerHandle = setInterval(() => {
-    if (!showingSolution) {
-      timer++;
-      updateStats();
-    }
-  }, 1000);
-}
-
 function formatTime(seconds) {
   const m = String(Math.floor(seconds / 60)).padStart(2, '0');
   const s = String(seconds % 60).padStart(2, '0');
   return `${m}:${s}`;
 }
 
-function boardFromValues() {
-  return values.map(row => [...row]);
+function serializeCell(r, c) {
+  return `${r}-${c}`;
+}
+
+function setScreen(mode) {
+  const game = mode === 'game';
+  startScreen.hidden = game;
+  gameScreen.hidden = !game;
+  document.body.classList.toggle('game-mode', game);
+  if (!game) closeMenu();
+}
+
+function openMenu() {
+  menuPanel.hidden = false;
+  document.body.classList.add('menu-open');
+}
+
+function closeMenu() {
+  menuPanel.hidden = true;
+  document.body.classList.remove('menu-open');
+}
+
+function toggleMenu() {
+  if (menuPanel.hidden) openMenu();
+  else closeMenu();
+}
+
+function setNoteModeUI() {
+  noteModeBtn.textContent = `Poznámky: ${noteMode ? 'zapnuto' : 'vypnuto'}`;
+  noteModeBtn.classList.toggle('active', noteMode);
 }
 
 function updateStats() {
@@ -252,13 +185,14 @@ function updateStats() {
   statsEl.textContent = `Dáno: ${given} · Vyplněno: ${filled} · Čas: ${formatTime(timer)}`;
 }
 
-function setNoteModeUI() {
-  noteModeBtn.textContent = `Poznámky: ${noteMode ? 'zapnuto' : 'vypnuto'}`;
-  noteModeBtn.classList.toggle('active', noteMode);
-}
-
-function serializeCell(r, c) {
-  return `${r}-${c}`;
+function startTimer() {
+  clearInterval(timerHandle);
+  timerHandle = setInterval(() => {
+    if (!showingSolution && gameScreen && !gameScreen.hidden) {
+      timer++;
+      updateStats();
+    }
+  }, 1000);
 }
 
 function markErrorCells() {
@@ -314,8 +248,8 @@ function renderCell(r, c) {
   if (same) cell.classList.add('same');
   if (error) cell.classList.add('error');
 
-  if (c === 2 || c === 5) cell.style.borderRight = '2px solid rgba(148,163,184,0.35)';
-  if (r === 2 || r === 5) cell.style.borderBottom = '2px solid rgba(148,163,184,0.35)';
+  if (c === 2 || c === 5) cell.style.borderRight = '2px solid rgba(60, 45, 22, 0.24)';
+  if (r === 2 || r === 5) cell.style.borderBottom = '2px solid rgba(60, 45, 22, 0.24)';
 
   cell.addEventListener('click', () => {
     if (showingSolution) return;
@@ -356,6 +290,7 @@ function pushHistory() {
     timer,
     errors: [...errors],
   });
+
   if (history.length > 200) history.shift();
 }
 
@@ -369,6 +304,130 @@ function restoreHistory() {
   errors = new Set(state.errors);
   render();
   statusEl.textContent = 'Vrácen předchozí krok.';
+}
+
+function checkWin() {
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (values[r][c] !== solution[r][c]) return false;
+    }
+  }
+  statusEl.textContent = 'Hotovo. Sudoku je vyřešené.';
+  return true;
+}
+
+function generatePuzzle(difficulty = currentDifficulty) {
+  currentDifficulty = difficulty;
+  difficultyEl.value = difficulty;
+
+  const full = createEmptyGrid();
+  fillBoard(full);
+  solution = cloneGrid(full);
+
+  puzzle = cloneGrid(full);
+  const removals = difficultyMap[difficulty] ?? 50;
+  let removed = 0;
+  const cells = shuffle(Array.from({ length: 81 }, (_, i) => i));
+
+  for (const index of cells) {
+    if (removed >= removals) break;
+    const r = Math.floor(index / 9);
+    const c = index % 9;
+    const backup = puzzle[r][c];
+    puzzle[r][c] = 0;
+
+    const testBoard = cloneGrid(puzzle);
+    if (countSolutions(testBoard, 2) !== 1) {
+      puzzle[r][c] = backup;
+    } else {
+      removed++;
+    }
+  }
+
+  values = cloneGrid(puzzle);
+  notes = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set()));
+  history = [];
+  selected = null;
+  errors = new Set();
+  showingSolution = false;
+  noteMode = false;
+  timer = 0;
+  loadedFromStorage = false;
+  render();
+  startTimer();
+  statusEl.textContent = 'Nové sudoku je připravené.';
+}
+
+function boardToText(board) {
+  return board.map(row => row.map(n => (n === 0 ? '.' : n)).join(' ')).join('\n');
+}
+
+function persistState() {
+  const state = {
+    difficulty: currentDifficulty,
+    puzzle,
+    solution,
+    values,
+    notes: notes.map(row => row.map(cell => [...cell])),
+    history,
+    selected,
+    noteMode,
+    timer,
+    errors: [...errors],
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function saveState() {
+  persistState();
+  statusEl.textContent = 'Hra uložena.';
+}
+
+function getSavedState() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function clearSavedState() {
+  localStorage.removeItem(STORAGE_KEY);
+  statusEl.textContent = 'Uložená hra smazána.';
+  showResumeCard();
+}
+
+function showResumeCard() {
+  resumeCard.hidden = !getSavedState();
+}
+
+function loadState(state) {
+  if (!state) return false;
+
+  try {
+    currentDifficulty = state.difficulty || 'medium';
+    difficultyEl.value = currentDifficulty;
+    puzzle = state.puzzle;
+    solution = state.solution;
+    values = state.values;
+    notes = state.notes.map(row => row.map(cell => new Set(cell)));
+    history = state.history || [];
+    selected = state.selected;
+    noteMode = !!state.noteMode;
+    showingSolution = false;
+    timer = state.timer || 0;
+    errors = new Set(state.errors || []);
+    loadedFromStorage = true;
+    render();
+    startTimer();
+    statusEl.textContent = 'Načtená rozehraná hra.';
+    setNoteModeUI();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function inputNumber(num) {
@@ -415,16 +474,6 @@ function hint() {
   checkWin();
 }
 
-function checkWin() {
-  for (let r = 0; r < 9; r++) {
-    for (let c = 0; c < 9; c++) {
-      if (values[r][c] !== solution[r][c]) return false;
-    }
-  }
-  statusEl.textContent = 'Hotovo. Sudoku je vyřešené.';
-  return true;
-}
-
 function checkBoard() {
   markErrorCells();
   render();
@@ -439,11 +488,18 @@ function toggleSolution() {
 }
 
 function handleKeydown(e) {
+  if (startScreen && !startScreen.hidden) return;
+  if (menuPanel && !menuPanel.hidden) {
+    if (e.key === 'Escape') closeMenu();
+    return;
+  }
   if (showingSolution) return;
+
   if (/^[1-9]$/.test(e.key)) {
     inputNumber(Number(e.key));
     return;
   }
+
   if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
     eraseSelected();
     return;
@@ -474,10 +530,6 @@ function handleKeydown(e) {
   render();
 }
 
-function boardToText(board) {
-  return board.map(row => row.map(n => (n === 0 ? '.' : n)).join(' ')).join('\n');
-}
-
 async function copyText(text) {
   try {
     await navigator.clipboard.writeText(text);
@@ -487,7 +539,24 @@ async function copyText(text) {
   }
 }
 
-newGameBtn.addEventListener('click', () => generatePuzzle());
+function startGameFromStart(difficulty) {
+  closeMenu();
+  setScreen('game');
+  generatePuzzle(difficulty);
+}
+
+function resumeGame() {
+  const saved = getSavedState();
+  if (saved && loadState(saved)) {
+    closeMenu();
+    setScreen('game');
+    return;
+  }
+  statusEl.textContent = 'Uložená hra nebyla nalezena.';
+  showResumeCard();
+}
+
+newGameBtn.addEventListener('click', () => startGameFromStart(difficultyEl.value));
 showSolutionBtn.addEventListener('click', toggleSolution);
 noteModeBtn.addEventListener('click', () => {
   noteMode = !noteMode;
@@ -498,21 +567,44 @@ hintBtn.addEventListener('click', hint);
 undoBtn.addEventListener('click', restoreHistory);
 checkBtn.addEventListener('click', checkBoard);
 saveBtn.addEventListener('click', saveState);
-eraseBtn.addEventListener('click', eraseSelected);
-copyPuzzleBtn.addEventListener('click', () => copyText(boardToText(values)));
+copyPuzzleBtn.addEventListener('click', () => copyText(boardToText(puzzle)));
 copySolutionBtn.addEventListener('click', () => copyText(boardToText(solution)));
 clearSaveBtn.addEventListener('click', clearSavedState);
-difficultyEl.addEventListener('change', () => generatePuzzle());
+difficultyEl.addEventListener('change', () => {
+  currentDifficulty = difficultyEl.value;
+});
+menuBtn.addEventListener('click', toggleMenu);
+menuCloseBtn.addEventListener('click', closeMenu);
+homeBtn.addEventListener('click', () => {
+  setScreen('start');
+  showResumeCard();
+});
+continueBtn.addEventListener('click', resumeGame);
+
+startButtons.forEach(btn => {
+  btn.addEventListener('click', () => startGameFromStart(btn.dataset.startDiff));
+});
 
 document.querySelectorAll('[data-num]').forEach(btn => {
   btn.addEventListener('click', () => inputNumber(Number(btn.dataset.num)));
 });
 
 document.addEventListener('keydown', handleKeydown);
+document.addEventListener('click', event => {
+  if (menuPanel.hidden) return;
+  if (menuPanel.contains(event.target) || menuBtn.contains(event.target)) return;
+  closeMenu();
+});
+window.addEventListener('beforeunload', () => {
+  if (!startScreen.hidden) return;
+  persistState();
+});
 
+showResumeCard();
 const saved = getSavedState();
-if (!loadState(saved)) {
-  generatePuzzle();
-} else {
-  startTimer();
+if (saved) {
+  currentDifficulty = saved.difficulty || 'medium';
+  difficultyEl.value = currentDifficulty;
 }
+setScreen('start');
+setNoteModeUI();
