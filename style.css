@@ -263,12 +263,29 @@ h1 {
   border-radius: 22px;
   padding: 10px;
   display: grid;
+  gap: 8px;
+}
+.keypad-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.keypad-grid {
+  display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 .keypad button {
   min-height: 52px;
   font-size: 1.05rem;
+}
+.keypad-close {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
 }
 
 .menu-panel {
@@ -369,6 +386,9 @@ h1 {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
+  }
+  .keypad-grid {
+    gap: 8px;
   }
   .keypad button {
     min-height: clamp(40px, 8.5vw, 48px);

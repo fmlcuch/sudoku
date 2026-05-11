@@ -14,6 +14,7 @@ const homeBtn = document.getElementById('homeBtn');
 const menuBtn = document.getElementById('menuBtn');
 const menuPanel = document.getElementById('menuPanel');
 const menuCloseBtn = document.getElementById('menuCloseBtn');
+const keypadCloseBtn = document.getElementById('keypadCloseBtn');
 const gridWrapEl = document.getElementById('gridWrap');
 const keypadEl = document.getElementById('keypad');
 const gridEl = document.getElementById('grid');
@@ -157,6 +158,15 @@ function isMobileView() {
   return window.matchMedia('(max-width: 520px)').matches;
 }
 
+function openMobilePad() {
+  if (!isMobileView() || gameScreen.hidden || showingSolution) return;
+  document.body.classList.add('mobile-pad-open');
+}
+
+function closeMobilePad() {
+  document.body.classList.remove('mobile-pad-open');
+}
+
 function syncMobilePadState() {
   const shouldOpen = isMobileView() && !gameScreen.hidden && !!selected && !showingSolution;
   document.body.classList.toggle('mobile-pad-open', shouldOpen);
@@ -295,6 +305,7 @@ function renderCell(r, c) {
     if (showingSolution) return;
     selected = [r, c];
     render();
+    openMobilePad();
     syncMobilePadState();
   });
 
@@ -492,6 +503,7 @@ function inputNumber(num) {
   }
 
   render();
+  closeMobilePad();
   checkWin();
   requestAnimationFrame(fitMobileLayout);
 }
@@ -623,6 +635,7 @@ difficultyEl.addEventListener('change', () => {
 });
 menuBtn.addEventListener('click', toggleMenu);
 menuCloseBtn.addEventListener('click', closeMenu);
+keypadCloseBtn.addEventListener('click', closeMobilePad);
 homeBtn.addEventListener('click', () => {
   setScreen('start');
   showResumeCard();
