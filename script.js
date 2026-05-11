@@ -176,28 +176,38 @@ function syncMobilePadState() {
   document.body.classList.toggle('mobile-pad-open', shouldOpen);
 }
 
-function fitMobileLayout() {
-  if (gameScreen.hidden || !isMobileView()) {
+function fitBoardLayout() {
+  if (gameScreen.hidden) {
     gameScreen.style.removeProperty('--board-size');
     return;
   }
 
-  const viewportHeight = window.visualViewport?.height || window.innerHeight;
-  const viewportWidth = window.visualViewport?.width || window.innerWidth;
-  const topbarHeight = document.querySelector('.topbar')?.offsetHeight || 0;
-  const metaHeight = document.querySelector('.meta')?.offsetHeight || 0;
-  const gaps = 26;
-  const horizontalPadding = 24;
+  let boardSize;
 
-  const boardSize = Math.max(
-    260,
-    Math.floor(
-      Math.min(
-        viewportHeight - topbarHeight - metaHeight - gaps,
-        viewportWidth - horizontalPadding,
+  if (isMobileView()) {
+    const viewportHeight = window.visualViewport?.height || window.innerHeight;
+    const viewportWidth = window.visualViewport?.width || window.innerWidth;
+    const topbarHeight = document.querySelector('.topbar')?.offsetHeight || 0;
+    const metaHeight = document.querySelector('.meta')?.offsetHeight || 0;
+    const keypadHeight = document.body.classList.contains('mobile-pad-open') ? (keypadEl?.offsetHeight || 0) : 0;
+    const gaps = 26;
+    const horizontalPadding = 24;
+
+    boardSize = Math.max(
+      260,
+      Math.floor(
+        Math.min(
+          viewportHeight - topbarHeight - metaHeight - keypadHeight - gaps,
+          viewportWidth - horizontalPadding,
+        ),
       ),
-    ),
-  );
+    );
+  } else {
+    const wrapWidth = gridWrapEl?.clientWidth || 0;
+    const wrapHeight = gridWrapEl?.clientHeight || 0;
+    const innerPad = 36;
+    boardSize = Math.max(0, Math.floor(Math.min(wrapWidth - innerPad, wrapHeight - innerPad)));
+  }
 
   gameScreen.style.setProperty('--board-size', `${boardSize}px`);
   syncMobilePadState();
@@ -210,7 +220,7 @@ function setScreen(mode) {
   document.body.classList.toggle('game-mode', game);
   if (!game) closeMenu();
   if (!game) document.body.classList.remove('mobile-pad-open');
-  requestAnimationFrame(fitMobileLayout);
+  requestAnimationFrame(fitBoardLayout);
 }
 
 function openMenu() {
@@ -419,7 +429,7 @@ function generatePuzzle(difficulty = currentDifficulty) {
   render();
   startTimer();
   statusEl.textContent = 'Nové sudoku je připravené.';
-  requestAnimationFrame(fitMobileLayout);
+  requestAnimationFrame(fitBoardLayout);
 }
 
 function boardToText(board) {
@@ -490,7 +500,7 @@ function loadState(state) {
     startTimer();
     statusEl.textContent = 'Načtená rozehraná hra.';
     setNoteModeUI();
-    requestAnimationFrame(fitMobileLayout);
+    requestAnimationFrame(fitBoardLayout);
     return true;
   } catch {
     return false;
@@ -518,7 +528,7 @@ function inputNumber(num) {
   render();
   closeMobilePad();
   checkWin();
-  requestAnimationFrame(fitMobileLayout);
+  requestAnimationFrame(fitBoardLayout);
 }
 
 function eraseSelected() {
@@ -531,7 +541,7 @@ function eraseSelected() {
   suppressMobilePad = true;
   render();
   statusEl.textContent = 'Buňka smazána.';
-  requestAnimationFrame(fitMobileLayout);
+  requestAnimationFrame(fitBoardLayout);
 }
 
 function hint() {
@@ -544,7 +554,7 @@ function hint() {
   render();
   statusEl.textContent = 'Doplněna nápověda.';
   checkWin();
-  requestAnimationFrame(fitMobileLayout);
+  requestAnimationFrame(fitBoardLayout);
 }
 
 function checkBoard() {
@@ -601,7 +611,7 @@ function handleKeydown(e) {
 
   selected = [r, c];
   render();
-  requestAnimationFrame(fitMobileLayout);
+  requestAnimationFrame(fitBoardLayout);
 }
 
 async function copyText(text) {
@@ -675,8 +685,8 @@ document.addEventListener('click', event => {
   if (menuPanel.contains(event.target) || menuBtn.contains(event.target)) return;
   closeMenu();
 });
-window.addEventListener('resize', fitMobileLayout);
-window.visualViewport?.addEventListener('resize', fitMobileLayout);
+window.addEventListener('resize', fitBoardLayout);
+window.visualViewport?.addEventListener('resize', fitBoardLayout);
 window.addEventListener('beforeunload', () => {
   if (!startScreen.hidden) return;
   persistState();
