@@ -262,6 +262,9 @@ h1 {
 
 @media (min-width: 821px) {
   .game-screen {
+    height: calc(100dvh - 36px);
+    max-height: calc(100dvh - 36px);
+    overflow: hidden;
     grid-template-columns: minmax(0, 1fr) 320px;
     grid-template-rows: auto auto minmax(0, 1fr);
     gap: 16px;
@@ -278,6 +281,7 @@ h1 {
     grid-row: 3;
     min-height: 0;
     padding: 18px;
+    overflow: hidden;
   }
 
   .game-screen .grid {
