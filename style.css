@@ -83,7 +83,7 @@ select {
 
 .start-screen,
 .game-screen {
-  max-width: 980px;
+  max-width: 1220px;
   margin: 0 auto;
 }
 
@@ -199,7 +199,7 @@ h1 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 2px;
   padding: 2px;
-  border-radius: 20px;
+  border-radius: 8px;
   background: rgba(141, 118, 87, 0.18);
 }
 
@@ -212,7 +212,7 @@ h1 {
   user-select: none;
   position: relative;
   aspect-ratio: 1;
-  border-radius: 12px;
+  border-radius: 6px;
   overflow: hidden;
 }
 
@@ -259,6 +259,57 @@ h1 {
   opacity: 0.85;
 }
 .note.filled { color: var(--ink); opacity: 1; }
+
+@media (min-width: 821px) {
+  .game-screen {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+
+  .topbar,
+  .meta {
+    grid-column: 1 / -1;
+  }
+
+  .game-screen .grid-wrap {
+    grid-column: 1;
+    grid-row: 3;
+    min-height: 0;
+    padding: 18px;
+  }
+
+  .game-screen .grid {
+    width: min(100%, 820px);
+    height: min(100%, 820px);
+  }
+
+  .game-screen .keypad {
+    grid-column: 2;
+    grid-row: 3;
+    align-self: start;
+    position: sticky;
+    top: 12px;
+    margin: 0;
+  }
+
+  .game-screen .keypad-close {
+    display: none;
+  }
+
+  .game-screen .keypad-grid {
+    gap: 10px;
+  }
+
+  .game-screen .keypad button {
+    min-height: 58px;
+  }
+
+  .menu-surface {
+    width: min(100%, 620px);
+  }
+}
 
 .keypad {
   border-radius: 26px;
