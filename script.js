@@ -14,6 +14,8 @@ const homeBtn = document.getElementById('homeBtn');
 const menuBtn = document.getElementById('menuBtn');
 const menuPanel = document.getElementById('menuPanel');
 const menuCloseBtn = document.getElementById('menuCloseBtn');
+const gridWrapEl = document.getElementById('gridWrap');
+const keypadEl = document.getElementById('keypad');
 const gridEl = document.getElementById('grid');
 const statusEl = document.getElementById('status');
 const statsEl = document.getElementById('stats');
@@ -151,12 +153,40 @@ function serializeCell(r, c) {
   return `${r}-${c}`;
 }
 
+function fitMobileLayout() {
+  if (gameScreen.hidden || !window.matchMedia('(max-width: 520px)').matches) {
+    gameScreen.style.removeProperty('--board-size');
+    return;
+  }
+
+  const viewportHeight = window.visualViewport?.height || window.innerHeight;
+  const viewportWidth = window.visualViewport?.width || window.innerWidth;
+  const topbarHeight = document.querySelector('.topbar')?.offsetHeight || 0;
+  const metaHeight = document.querySelector('.meta')?.offsetHeight || 0;
+  const keypadHeight = keypadEl?.offsetHeight || 0;
+  const gaps = 30;
+  const horizontalPadding = 24;
+
+  const boardSize = Math.max(
+    220,
+    Math.floor(
+      Math.min(
+        viewportHeight - topbarHeight - metaHeight - keypadHeight - gaps,
+        viewportWidth - horizontalPadding,
+      ),
+    ),
+  );
+
+  gameScreen.style.setProperty('--board-size', `${boardSize}px`);
+}
+
 function setScreen(mode) {
   const game = mode === 'game';
   startScreen.hidden = game;
   gameScreen.hidden = !game;
   document.body.classList.toggle('game-mode', game);
   if (!game) closeMenu();
+  requestAnimationFrame(fitMobileLayout);
 }
 
 function openMenu() {
@@ -356,6 +386,7 @@ function generatePuzzle(difficulty = currentDifficulty) {
   render();
   startTimer();
   statusEl.textContent = 'Nové sudoku je připravené.';
+  requestAnimationFrame(fitMobileLayout);
 }
 
 function boardToText(board) {
@@ -424,6 +455,7 @@ function loadState(state) {
     startTimer();
     statusEl.textContent = 'Načtená rozehraná hra.';
     setNoteModeUI();
+    requestAnimationFrame(fitMobileLayout);
     return true;
   } catch {
     return false;
@@ -449,6 +481,7 @@ function inputNumber(num) {
 
   render();
   checkWin();
+  requestAnimationFrame(fitMobileLayout);
 }
 
 function eraseSelected() {
@@ -460,6 +493,7 @@ function eraseSelected() {
   notes[r][c].clear();
   render();
   statusEl.textContent = 'Buňka smazána.';
+  requestAnimationFrame(fitMobileLayout);
 }
 
 function hint() {
@@ -472,6 +506,7 @@ function hint() {
   render();
   statusEl.textContent = 'Doplněna nápověda.';
   checkWin();
+  requestAnimationFrame(fitMobileLayout);
 }
 
 function checkBoard() {
@@ -528,6 +563,7 @@ function handleKeydown(e) {
 
   selected = [r, c];
   render();
+  requestAnimationFrame(fitMobileLayout);
 }
 
 async function copyText(text) {
@@ -595,6 +631,8 @@ document.addEventListener('click', event => {
   if (menuPanel.contains(event.target) || menuBtn.contains(event.target)) return;
   closeMenu();
 });
+window.addEventListener('resize', fitMobileLayout);
+window.visualViewport?.addEventListener('resize', fitMobileLayout);
 window.addEventListener('beforeunload', () => {
   if (!startScreen.hidden) return;
   persistState();

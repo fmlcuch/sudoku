@@ -10,6 +10,7 @@
   --shadow: rgba(58, 42, 20, 0.12);
   --cell: #fbf7ef;
   --cell-alt: #f8f1e4;
+  --board-size: 760px;
 }
 
 * { box-sizing: border-box; }
@@ -142,8 +143,8 @@ h1 {
 
 .game-screen {
   min-height: calc(100dvh - 36px);
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   gap: 12px;
 }
 
@@ -185,7 +186,8 @@ h1 {
 }
 
 .grid {
-  width: min(100%, 760px);
+  width: min(100%, var(--board-size));
+  height: min(100%, var(--board-size));
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
@@ -321,6 +323,7 @@ h1 {
   }
   .game-screen {
     min-height: calc(100dvh - 24px);
+    height: calc(100dvh - 24px);
     gap: 10px;
   }
   .hero,
@@ -333,12 +336,13 @@ h1 {
   }
   .grid-wrap {
     padding: 8px;
-    flex: 1 1 auto;
     min-height: 0;
   }
   .grid {
-    width: min(100%, 100vw - 40px);
+    width: min(100%, var(--board-size));
+    height: min(100%, var(--board-size));
     max-width: 100%;
+    max-height: 100%;
   }
   .topbar {
     padding: 12px;
@@ -348,12 +352,11 @@ h1 {
     font-size: 0.92rem;
   }
   .keypad {
-    flex: 0 0 auto;
     padding: 10px;
     margin-top: auto;
   }
   .keypad button {
-    min-height: 48px;
+    min-height: clamp(40px, 8.5vw, 48px);
   }
   .menu-panel {
     padding: 12px;
