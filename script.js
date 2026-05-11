@@ -205,9 +205,11 @@ function fitBoardLayout() {
     );
   } else {
     const wrapWidth = gridWrapEl?.clientWidth || 0;
-    const wrapHeight = gridWrapEl?.clientHeight || 0;
+    const viewportHeight = window.visualViewport?.height || window.innerHeight;
+    const topbarHeight = document.querySelector('.topbar')?.offsetHeight || 0;
+    const metaHeight = document.querySelector('.meta')?.offsetHeight || 0;
     const innerPad = 36;
-    boardSize = Math.max(0, Math.floor(Math.min(wrapWidth - innerPad, wrapHeight - innerPad)));
+    boardSize = Math.max(300, Math.floor(Math.min(wrapWidth - innerPad, viewportHeight - topbarHeight - metaHeight - 160, 720)));
   }
 
   gameScreen.style.setProperty('--board-size', `${boardSize}px`);
