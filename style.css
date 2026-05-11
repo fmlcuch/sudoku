@@ -64,6 +64,10 @@ button.icon-btn {
   border-radius: 50%;
 }
 
+button.icon-btn.note-toggle {
+  font-size: 0.95rem;
+}
+
 select {
   width: 100%;
   border: 1px solid var(--line);
@@ -83,7 +87,8 @@ select {
 
 .start-screen,
 .game-screen {
-  max-width: 1220px;
+  width: min(100%, 1000px);
+  max-width: 1000px;
   margin: 0 auto;
 }
 
@@ -150,7 +155,7 @@ h1 {
 }
 
 .topbar {
-  border-radius: 22px;
+  border-radius: 20px;
   padding: 14px 16px;
   display: flex;
   justify-content: space-between;
@@ -164,10 +169,11 @@ h1 {
 .topbar-actions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .meta {
-  border-radius: 20px;
+  border-radius: 18px;
   padding: 12px 14px;
   display: flex;
   justify-content: space-between;
@@ -179,7 +185,7 @@ h1 {
 .grid-wrap {
   flex: 1;
   min-height: 0;
-  border-radius: 30px;
+  border-radius: 24px;
   padding: 12px;
   display: flex;
   align-items: center;
@@ -265,7 +271,7 @@ h1 {
     height: calc(100dvh - 36px);
     max-height: calc(100dvh - 36px);
     overflow: hidden;
-    grid-template-columns: minmax(0, 1fr) 320px;
+    grid-template-columns: minmax(0, 1fr) 280px;
     grid-template-rows: auto auto minmax(0, 1fr);
     gap: 16px;
     align-items: start;
@@ -285,8 +291,8 @@ h1 {
   }
 
   .game-screen .grid {
-    width: min(100%, 820px);
-    height: min(100%, 820px);
+    width: min(100%, 760px);
+    height: min(100%, 760px);
   }
 
   .game-screen .keypad {
@@ -307,7 +313,7 @@ h1 {
   }
 
   .game-screen .keypad button {
-    min-height: 58px;
+    min-height: 56px;
   }
 
   .menu-surface {
@@ -316,7 +322,7 @@ h1 {
 }
 
 .keypad {
-  border-radius: 26px;
+  border-radius: 22px;
   padding: 10px;
   display: grid;
   gap: 8px;
@@ -422,7 +428,7 @@ h1 {
   .meta,
   .grid-wrap,
   .keypad {
-    border-radius: 22px;
+    border-radius: 20px;
   }
   .grid-wrap {
     padding: 8px;

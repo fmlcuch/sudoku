@@ -12,6 +12,7 @@ const resumeCard = document.getElementById('resumeCard');
 const continueBtn = document.getElementById('continueBtn');
 const homeBtn = document.getElementById('homeBtn');
 const menuBtn = document.getElementById('menuBtn');
+const noteModeTopBtn = document.getElementById('noteModeTopBtn');
 const menuPanel = document.getElementById('menuPanel');
 const menuCloseBtn = document.getElementById('menuCloseBtn');
 const keypadCloseBtn = document.getElementById('keypadCloseBtn');
@@ -241,6 +242,8 @@ function toggleMenu() {
 function setNoteModeUI() {
   noteModeBtn.textContent = `Poznámky: ${noteMode ? 'zapnuto' : 'vypnuto'}`;
   noteModeBtn.classList.toggle('active', noteMode);
+  noteModeTopBtn.classList.toggle('active', noteMode);
+  noteModeTopBtn.setAttribute('aria-pressed', String(noteMode));
 }
 
 function setShowErrorsUI() {
@@ -642,11 +645,14 @@ function resumeGame() {
 
 newGameBtn.addEventListener('click', () => startGameFromStart(difficultyEl.value));
 showSolutionBtn.addEventListener('click', toggleSolution);
-noteModeBtn.addEventListener('click', () => {
+const toggleNoteMode = () => {
   noteMode = !noteMode;
   setNoteModeUI();
   statusEl.textContent = `Režim poznámek ${noteMode ? 'zapnut' : 'vypnut'}.`;
-});
+};
+
+noteModeBtn.addEventListener('click', toggleNoteMode);
+noteModeTopBtn.addEventListener('click', toggleNoteMode);
 showErrorsToggle.addEventListener('change', () => {
   showErrors = showErrorsToggle.checked;
   render();
