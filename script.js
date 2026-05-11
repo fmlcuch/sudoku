@@ -153,8 +153,17 @@ function serializeCell(r, c) {
   return `${r}-${c}`;
 }
 
+function isMobileView() {
+  return window.matchMedia('(max-width: 520px)').matches;
+}
+
+function syncMobilePadState() {
+  const shouldOpen = isMobileView() && !gameScreen.hidden && !!selected && !showingSolution;
+  document.body.classList.toggle('mobile-pad-open', shouldOpen);
+}
+
 function fitMobileLayout() {
-  if (gameScreen.hidden || !window.matchMedia('(max-width: 520px)').matches) {
+  if (gameScreen.hidden || !isMobileView()) {
     gameScreen.style.removeProperty('--board-size');
     return;
   }
@@ -163,21 +172,21 @@ function fitMobileLayout() {
   const viewportWidth = window.visualViewport?.width || window.innerWidth;
   const topbarHeight = document.querySelector('.topbar')?.offsetHeight || 0;
   const metaHeight = document.querySelector('.meta')?.offsetHeight || 0;
-  const keypadHeight = keypadEl?.offsetHeight || 0;
-  const gaps = 30;
+  const gaps = 26;
   const horizontalPadding = 24;
 
   const boardSize = Math.max(
-    220,
+    260,
     Math.floor(
       Math.min(
-        viewportHeight - topbarHeight - metaHeight - keypadHeight - gaps,
+        viewportHeight - topbarHeight - metaHeight - gaps,
         viewportWidth - horizontalPadding,
       ),
     ),
   );
 
   gameScreen.style.setProperty('--board-size', `${boardSize}px`);
+  syncMobilePadState();
 }
 
 function setScreen(mode) {
@@ -186,6 +195,7 @@ function setScreen(mode) {
   gameScreen.hidden = !game;
   document.body.classList.toggle('game-mode', game);
   if (!game) closeMenu();
+  if (!game) document.body.classList.remove('mobile-pad-open');
   requestAnimationFrame(fitMobileLayout);
 }
 
@@ -285,6 +295,7 @@ function renderCell(r, c) {
     if (showingSolution) return;
     selected = [r, c];
     render();
+    syncMobilePadState();
   });
 
   return cell;
@@ -310,6 +321,7 @@ function render() {
   showSolutionBtn.textContent = showingSolution ? 'Skrýt řešení' : 'Ukázat řešení';
   updateStats();
   setNoteModeUI();
+  syncMobilePadState();
 }
 
 function pushHistory() {
