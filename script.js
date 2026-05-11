@@ -31,6 +31,7 @@ const saveBtn = document.getElementById('saveBtn');
 const copyPuzzleBtn = document.getElementById('copyPuzzleBtn');
 const copySolutionBtn = document.getElementById('copySolutionBtn');
 const clearSaveBtn = document.getElementById('clearSaveBtn');
+const showErrorsToggle = document.getElementById('showErrorsToggle');
 const startButtons = document.querySelectorAll('[data-start-diff]');
 
 let puzzle = [];
@@ -46,6 +47,8 @@ let timerHandle = null;
 let errors = new Set();
 let loadedFromStorage = false;
 let currentDifficulty = 'medium';
+let showErrors = false;
+let suppressMobilePad = false;
 
 function createEmptyGrid(fill = 0) {
   return Array.from({ length: 9 }, () => Array(9).fill(fill));
@@ -165,10 +168,11 @@ function openMobilePad() {
 
 function closeMobilePad() {
   document.body.classList.remove('mobile-pad-open');
+  suppressMobilePad = true;
 }
 
 function syncMobilePadState() {
-  const shouldOpen = isMobileView() && !gameScreen.hidden && !!selected && !showingSolution;
+  const shouldOpen = isMobileView() && !gameScreen.hidden && !!selected && !showingSolution && !suppressMobilePad;
   document.body.classList.toggle('mobile-pad-open', shouldOpen);
 }
 
@@ -227,6 +231,10 @@ function toggleMenu() {
 function setNoteModeUI() {
   noteModeBtn.textContent = `Poznámky: ${noteMode ? 'zapnuto' : 'vypnuto'}`;
   noteModeBtn.classList.toggle('active', noteMode);
+}
+
+function setShowErrorsUI() {
+  showErrorsToggle.checked = showErrors;
 }
 
 function updateStats() {
@@ -296,13 +304,14 @@ function renderCell(r, c) {
   if (selectedHere) cell.classList.add('selected');
   if (related) cell.classList.add('related');
   if (same) cell.classList.add('same');
-  if (error) cell.classList.add('error');
+  if (showErrors && error) cell.classList.add('error');
 
   if (c === 2 || c === 5) cell.style.borderRight = '2px solid rgba(60, 45, 22, 0.24)';
   if (r === 2 || r === 5) cell.style.borderBottom = '2px solid rgba(60, 45, 22, 0.24)';
 
   cell.addEventListener('click', () => {
     if (showingSolution) return;
+    suppressMobilePad = false;
     selected = [r, c];
     render();
     openMobilePad();
@@ -332,6 +341,7 @@ function render() {
   showSolutionBtn.textContent = showingSolution ? 'Skrýt řešení' : 'Ukázat řešení';
   updateStats();
   setNoteModeUI();
+  setShowErrorsUI();
   syncMobilePadState();
 }
 
@@ -426,6 +436,7 @@ function persistState() {
     history,
     selected,
     noteMode,
+    showErrors,
     timer,
     errors: [...errors],
   };
@@ -470,6 +481,7 @@ function loadState(state) {
     history = state.history || [];
     selected = state.selected;
     noteMode = !!state.noteMode;
+    showErrors = !!state.showErrors;
     showingSolution = false;
     timer = state.timer || 0;
     errors = new Set(state.errors || []);
@@ -502,6 +514,7 @@ function inputNumber(num) {
     statusEl.textContent = `Zapsáno ${num}.`;
   }
 
+  suppressMobilePad = true;
   render();
   closeMobilePad();
   checkWin();
@@ -515,6 +528,7 @@ function eraseSelected() {
   pushHistory();
   values[r][c] = 0;
   notes[r][c].clear();
+  suppressMobilePad = true;
   render();
   statusEl.textContent = 'Buňka smazána.';
   requestAnimationFrame(fitMobileLayout);
@@ -623,6 +637,11 @@ noteModeBtn.addEventListener('click', () => {
   setNoteModeUI();
   statusEl.textContent = `Režim poznámek ${noteMode ? 'zapnut' : 'vypnut'}.`;
 });
+showErrorsToggle.addEventListener('change', () => {
+  showErrors = showErrorsToggle.checked;
+  render();
+  statusEl.textContent = showErrors ? 'Chyby se zobrazují.' : 'Zvýraznění chyb je vypnuté.';
+});
 hintBtn.addEventListener('click', hint);
 undoBtn.addEventListener('click', restoreHistory);
 checkBtn.addEventListener('click', checkBoard);
@@ -668,6 +687,8 @@ const saved = getSavedState();
 if (saved) {
   currentDifficulty = saved.difficulty || 'medium';
   difficultyEl.value = currentDifficulty;
+  showErrors = !!saved.showErrors;
 }
 setScreen('start');
 setNoteModeUI();
+setShowErrorsUI();

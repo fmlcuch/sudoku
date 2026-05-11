@@ -43,7 +43,7 @@ button {
   border: 1px solid var(--line);
   background: linear-gradient(180deg, #fffaf1, #f1e7d6);
   color: var(--ink);
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 10px 14px;
   cursor: pointer;
   transition: transform 0.08s ease, border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
@@ -61,6 +61,7 @@ button.icon-btn {
   display: grid;
   place-items: center;
   font-size: 1.05rem;
+  border-radius: 50%;
 }
 
 select {
@@ -109,7 +110,7 @@ select {
 .hero,
 .start-card,
 .menu-surface {
-  border-radius: 22px;
+  border-radius: 24px;
   padding: 18px;
 }
 
@@ -178,7 +179,7 @@ h1 {
 .grid-wrap {
   flex: 1;
   min-height: 0;
-  border-radius: 26px;
+  border-radius: 30px;
   padding: 12px;
   display: flex;
   align-items: center;
@@ -198,7 +199,7 @@ h1 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 2px;
   padding: 2px;
-  border-radius: 16px;
+  border-radius: 20px;
   background: rgba(141, 118, 87, 0.18);
 }
 
@@ -211,7 +212,7 @@ h1 {
   user-select: none;
   position: relative;
   aspect-ratio: 1;
-  border-radius: 9px;
+  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -260,7 +261,7 @@ h1 {
 .note.filled { color: var(--ink); opacity: 1; }
 
 .keypad {
-  border-radius: 22px;
+  border-radius: 26px;
   padding: 10px;
   display: grid;
   gap: 8px;
@@ -321,6 +322,19 @@ h1 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.checkbox-field input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--accent);
+}
 .menu-actions button { width: 100%; }
 
 @media (max-width: 720px) {
@@ -350,7 +364,7 @@ h1 {
   .meta,
   .grid-wrap,
   .keypad {
-    border-radius: 18px;
+    border-radius: 22px;
   }
   .grid-wrap {
     padding: 8px;
