@@ -402,10 +402,13 @@ h1 {
 }
 
 @media (max-width: 520px) {
-  body { overflow: hidden; }
+  body.game-mode { overflow: hidden; }
   .start-screen {
+    min-height: auto;
     align-content: start;
     padding-top: 10px;
+    padding-bottom: 40px;
+    overflow-y: auto;
   }
   .game-screen {
     min-height: calc(100dvh - 24px);
